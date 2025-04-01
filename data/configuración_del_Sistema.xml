@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<listaEmpresas>
+  <empresa id="E001">
+    <nombre>Empresa Ejemplo</nombre>
+    <abreviatura>EEJ</abreviatura>
+    <listaPuntosAtencion>
+      <puntoAtencion id="P001">
+        <nombre>Punto Central</nombre>
+        <direccion>Av. Principal 123</direccion>
+        <listaEscritorios>
+          <escritorio id="ES001">
+            <identificacion>Escritorio 1</identificacion>
+            <encargado>Juan Pérez</encargado>
+          </escritorio>
+          <escritorio id="ES002">
+            <identificacion>Escritorio 2</identificacion>
+            <encargado>María López</encargado>
+          </escritorio>
+        </listaEscritorios>
+      </puntoAtencion>
+    </listaPuntosAtencion>
+    <listaTransacciones>
+      <transaccion id="T001">
+        <nombre>Consulta</nombre>
+        <tiempoAtencion>5</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T002">
+        <nombre>Pago</nombre>
+        <tiempoAtencion>3</tiempoAtencion>
+      </transaccion>
+    </listaTransacciones>
+  </empresa>
+</listaEmpresas>

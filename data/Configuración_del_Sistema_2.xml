@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<listaEmpresas>
+  <empresa id="E001">
+    <nombre>Banco Central</nombre>
+    <abreviatura>BC</abreviatura>
+    <listaPuntosAtencion>
+      <puntoAtencion id="P001">
+        <nombre>Sucursal Central</nombre>
+        <direccion>Avenida Central 123</direccion>
+        <listaEscritorios>
+          <escritorio id="ES001">
+            <identificacion>Ventana 1</identificacion>
+            <encargado>Ana Martínez</encargado>
+          </escritorio>
+          <escritorio id="ES002">
+            <identificacion>Ventana 2</identificacion>
+            <encargado>Carlos Gómez</encargado>
+          </escritorio>
+          <escritorio id="ES003">
+            <identificacion>Ventana 3</identificacion>
+            <encargado>Laura Rodríguez</encargado>
+          </escritorio>
+        </listaEscritorios>
+      </puntoAtencion>
+      <puntoAtencion id="P002">
+        <nombre>Sucursal Norte</nombre>
+        <direccion>Calle Norte 456</direccion>
+        <listaEscritorios>
+          <escritorio id="ES004">
+            <identificacion>Ventana 4</identificacion>
+            <encargado>Marcos López</encargado>
+          </escritorio>
+          <escritorio id="ES005">
+            <identificacion>Ventana 5</identificacion>
+            <encargado>Sofía Hernández</encargado>
+          </escritorio>
+        </listaEscritorios>
+      </puntoAtencion>
+    </listaPuntosAtencion>
+    <listaTransacciones>
+      <transaccion id="T001">
+        <nombre>Apertura de Cuenta</nombre>
+        <tiempoAtencion>10</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T002">
+        <nombre>Depósito</nombre>
+        <tiempoAtencion>3</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T003">
+        <nombre>Retiro</nombre>
+        <tiempoAtencion>5</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T004">
+        <nombre>Consulta de Saldo</nombre>
+        <tiempoAtencion>2</tiempoAtencion>
+      </transaccion>
+    </listaTransacciones>
+  </empresa>
+  <empresa id="E002">
+    <nombre>Comercializadora XYZ</nombre>
+    <abreviatura>XYZ</abreviatura>
+    <listaPuntosAtencion>
+      <puntoAtencion id="P003">
+        <nombre>Sucursal Principal</nombre>
+        <direccion>Av. Industrial 789</direccion>
+        <listaEscritorios>
+          <escritorio id="ES006">
+            <identificacion>Mostrador 1</identificacion>
+            <encargado>Diego Pérez</encargado>
+          </escritorio>
+          <escritorio id="ES007">
+            <identificacion>Mostrador 2</identificacion>
+            <encargado>Elena Ruiz</encargado>
+          </escritorio>
+        </listaEscritorios>
+      </puntoAtencion>
+      <puntoAtencion id="P004">
+        <nombre>Sucursal Secundaria</nombre>
+        <direccion>Av. Secundaria 321</direccion>
+        <listaEscritorios>
+          <escritorio id="ES008">
+            <identificacion>Mostrador 3</identificacion>
+            <encargado>Roberto Díaz</encargado>
+          </escritorio>
+        </listaEscritorios>
+      </puntoAtencion>
+    </listaPuntosAtencion>
+    <listaTransacciones>
+      <transaccion id="T005">
+        <nombre>Venta de Productos</nombre>
+        <tiempoAtencion>8</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T006">
+        <nombre>Devolución</nombre>
+        <tiempoAtencion>6</tiempoAtencion>
+      </transaccion>
+      <transaccion id="T007">
+        <nombre>Consulta de Pedidos</nombre>
+        <tiempoAtencion>4</tiempoAtencion>
+      </transaccion>
+    </listaTransacciones>
+  </empresa>
+</listaEmpresas>
