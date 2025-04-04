@@ -1,4 +1,3 @@
-# simulation.py
 import time
 from models import Empresa, PuntoAtencion, Escritorio, Transaccion, Cliente
 from xml_parser import parse_configuracion_sistema, parse_configuracion_inicial
@@ -6,7 +5,6 @@ from tda import LinkedList
 
 class SistemaAtencion:
     def __init__(self):
-        # Se almacena la información de las empresas usando el TDA LinkedList
         self.empresas = LinkedList()
 
     def limpiar_sistema(self):
@@ -18,7 +16,6 @@ class SistemaAtencion:
             self.empresas.append(empresa)
 
     def cargar_configuracion_inicial(self, xml_file):
-        # Convertir temporalmente el TDA a una lista para el parseo
         empresas_temp = [e for e in self.empresas]
         empresas_temp = parse_configuracion_inicial(xml_file, empresas_temp)
         self.empresas = LinkedList()
@@ -40,92 +37,73 @@ class SistemaAtencion:
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
-        # Contar clientes en espera recorriendo la cola
-        clientes_en_espera = 0
-        for _ in punto.cola_clientes:
-            clientes_en_espera += 1
-        # Contar escritorios activos e inactivos
-        escritorios_activos = 0
-        escritorios_inactivos = 0
-        for escritorio in punto.escritorios:
-            if escritorio.activo:
-                escritorios_activos += 1
-            else:
-                escritorios_inactivos += 1
-        estado = (f"Punto: {punto.nombre}\n"
-                  f"Escritorios activos: {escritorios_activos}\n"
-                  f"Escritorios inactivos: {escritorios_inactivos}\n"
-                  f"Clientes en espera: {clientes_en_espera}\n")
-        return estado
+        
+        return (f"Punto: {punto.nombre}\n"
+                f"Escritorios activos: {sum(1 for e in punto.escritorios if e.activo)}\n"
+                f"Escritorios inactivos: {sum(1 for e in punto.escritorios if not e.activo)}\n"
+                f"Clientes en espera: {punto.cola_clientes.size()}\n")
 
     def activar_escritorio(self, id_empresa, id_punto, id_escritorio):
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
+        
         for escritorio in punto.escritorios:
             if escritorio.id == id_escritorio:
                 escritorio.activar()
-                return f"Escritorio {id_escritorio} activado."
+                return f"Escritorio {escritorio.identificacion} activado."
         return "Escritorio no encontrado."
 
     def desactivar_escritorio(self, id_empresa, id_punto, id_escritorio):
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
+        
         for escritorio in punto.escritorios:
             if escritorio.id == id_escritorio:
                 escritorio.desactivar()
-                return f"Escritorio {id_escritorio} desactivado."
+                return f"Escritorio {escritorio.identificacion} desactivado."
         return "Escritorio no encontrado."
 
     def atender_cliente(self, id_empresa, id_punto):
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
+        
         mensaje = ""
-        # Asigna a cada escritorio activo que esté libre el siguiente cliente de la cola
         for escritorio in punto.escritorios:
             if escritorio.activo and escritorio.cliente_actual is None:
                 cliente = punto.cola_clientes.dequeue()
                 if cliente:
+                    cliente.tiempo_inicio_atencion = time.time()
+                    tiempo_espera = (cliente.tiempo_inicio_atencion - cliente.tiempo_llegada) / 60
+                    punto.tiempos_espera.append(tiempo_espera)
+                    
                     escritorio.cliente_actual = cliente
-                    escritorio.tiempo_restante = self.calcular_tiempo_atencion(cliente, empresa)
-                    mensaje += f"Cliente {cliente.nombre} asignado a escritorio {escritorio.identificacion}.\n"
+                    escritorio.tiempo_restante = self._calcular_tiempo_atencion(cliente, empresa)
+                    mensaje += f"Cliente {cliente.nombre} asignado a {escritorio.identificacion}\n"
                 else:
-                    mensaje += "No hay clientes en espera.\n"
+                    mensaje += "No hay clientes en espera\n"
         return mensaje
 
-    def calcular_tiempo_atencion(self, cliente, empresa):
+    def _calcular_tiempo_atencion(self, cliente, empresa):
         tiempo_total = 0
-        # Suma el tiempo requerido de todas las transacciones solicitadas por el cliente
         for trans_tuple in cliente.listado_transacciones:
             transaccion, cantidad = trans_tuple
             tiempo_total += transaccion.tiempo_atencion * cantidad
@@ -135,58 +113,67 @@ class SistemaAtencion:
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
-        tiempo_espera = 0
-        for cli in punto.cola_clientes:
-            tiempo_espera += self.calcular_tiempo_atencion(cli, empresa)
+        
+        tiempo_espera = sum(self._calcular_tiempo_atencion(cli, empresa) for cli in punto.cola_clientes)
         punto.encolar_cliente(cliente)
-        return f"Cliente encolado. Tiempo de espera estimado: {tiempo_espera} minutos."
+        return f"Cliente {cliente.nombre} encolado. Tiempo estimado: {tiempo_espera} minutos"
 
     def simular_actividad(self, id_empresa, id_punto):
-        mensaje = ""
         empresa = self.buscar_empresa(id_empresa)
         if not empresa:
             return "Empresa no encontrada."
-        punto = None
-        for p in empresa.puntos_atencion:
-            if p.id == id_punto:
-                punto = p
-                break
+        
+        punto = next((p for p in empresa.puntos_atencion if p.id == id_punto), None)
         if not punto:
             return "Punto de atención no encontrado."
-
-        simulation_time = 0  # contador en minutos simulados
-        # Asignación inicial de clientes a escritorios vacíos
+        
+        mensaje = []
+        simulation_time = 0
+        
+        # Asignación inicial
         for escritorio in punto.escritorios:
-            if escritorio.activo and escritorio.cliente_actual is None and not punto.cola_clientes.is_empty():
-                nuevo_cliente = punto.cola_clientes.dequeue()
-                escritorio.cliente_actual = nuevo_cliente
-                escritorio.tiempo_restante = self.calcular_tiempo_atencion(nuevo_cliente, empresa)
-                mensaje += f"[{simulation_time} min] Cliente {nuevo_cliente.nombre} asignado a escritorio {escritorio.identificacion}.\n"
+            if escritorio.activo and not escritorio.cliente_actual:
+                if not punto.cola_clientes.is_empty():
+                    cliente = punto.cola_clientes.dequeue()
+                    cliente.tiempo_inicio_atencion = time.time()
+                    tiempo_espera = (cliente.tiempo_inicio_atencion - cliente.tiempo_llegada) / 60
+                    punto.tiempos_espera.append(tiempo_espera)
+                    
+                    escritorio.cliente_actual = cliente
+                    escritorio.tiempo_restante = self._calcular_tiempo_atencion(cliente, empresa)
+                    mensaje.append(f"[{simulation_time} min] {cliente.nombre} asignado a {escritorio.identificacion}")
 
-        # Ciclo de simulación: se procesa mientras haya clientes en cola o algún escritorio esté ocupado.
-        while (not punto.cola_clientes.is_empty()) or any(e.cliente_actual for e in punto.escritorios):
+        # Ciclo de simulación
+        while not punto.cola_clientes.is_empty() or any(e.cliente_actual for e in punto.escritorios):
             simulation_time += 1
             for escritorio in punto.escritorios:
                 if escritorio.activo and escritorio.cliente_actual:
                     escritorio.tiempo_restante -= 1
+                    
                     if escritorio.tiempo_restante <= 0:
-                        mensaje += f"[{simulation_time} min] Cliente {escritorio.cliente_actual.nombre} atendido en escritorio {escritorio.identificacion}.\n"
+                        tiempo_atencion = self._calcular_tiempo_atencion(escritorio.cliente_actual, empresa)
+                        escritorio.tiempos_atencion.append(tiempo_atencion)
+                        escritorio.clientes_atendidos += 1
+                        
+                        mensaje.append(f"[{simulation_time} min] {escritorio.cliente_actual.nombre} atendido en {escritorio.identificacion}")
                         escritorio.cliente_actual = None
+                        
                         if not punto.cola_clientes.is_empty():
                             nuevo_cliente = punto.cola_clientes.dequeue()
+                            nuevo_cliente.tiempo_inicio_atencion = time.time()
+                            tiempo_espera = (nuevo_cliente.tiempo_inicio_atencion - nuevo_cliente.tiempo_llegada) / 60
+                            punto.tiempos_espera.append(tiempo_espera)
+                            
                             escritorio.cliente_actual = nuevo_cliente
-                            escritorio.tiempo_restante = self.calcular_tiempo_atencion(nuevo_cliente, empresa)
-                            mensaje += f"[{simulation_time} min] Cliente {nuevo_cliente.nombre} asignado a escritorio {escritorio.identificacion}.\n"
+                            escritorio.tiempo_restante = self._calcular_tiempo_atencion(nuevo_cliente, empresa)
+                            mensaje.append(f"[{simulation_time} min] {nuevo_cliente.nombre} asignado a {escritorio.identificacion}")
+            
             time.sleep(0.1)
-        return mensaje
+        
+        return "\n".join(mensaje)
 
-# Se crea una instancia global del sistema para utilizar en la interfaz
 sistema = SistemaAtencion()
-

@@ -1,41 +1,52 @@
-# graphviz_report.py
 from graphviz import Digraph
 
 def generar_reporte_cola(punto):
-    """
-    Genera un diagrama de la cola de clientes del punto de atención.
-    Se muestran también las transacciones y cantidades que realizará cada cliente.
-    Si la cola está vacía, se muestra un nodo indicando "Cola Vacía".
-    """
-    dot = Digraph(comment='Cola de Clientes')
+    dot = Digraph(comment='Cola de Clientes', format='png')
     contador = 1
-    tiene_clientes = False
+    
     for cliente in punto.cola_clientes:
-        tiene_clientes = True
-        # Construir cadena con las transacciones y cantidades
-        transacciones_str = ""
-        for trans_tuple in cliente.listado_transacciones:
-            transaccion, cantidad = trans_tuple
-            transacciones_str += f"{transaccion.id}({cantidad}), "
-        transacciones_str = transacciones_str.rstrip(", ")
-        label = f"{cliente.nombre}\nDPI: {cliente.dpi}\nTransacciones: {transacciones_str}"
-        dot.node(f'cliente{contador}', label)
+        transacciones = "\\n".join([f"{t[0].id} x{t[1]}" for t in cliente.listado_transacciones])
+        label = f"{cliente.nombre}\\nDPI: {cliente.dpi}\\n---\\n{transacciones}"
+        dot.node(str(contador), label, shape='box')
+        
         if contador > 1:
-            dot.edge(f'cliente{contador-1}', f'cliente{contador}')
+            dot.edge(str(contador-1), str(contador))
         contador += 1
-    if not tiene_clientes:
-        dot.node('vacio', 'Cola Vacía')
-    dot.render('reporte_cola.gv', view=True)
-    return "Reporte de cola generado (reporte_cola.gv.pdf)"
+    
+    if contador == 1:
+        dot.node('vacio', 'Cola Vacía', shape='box')
+    
+    dot.render('reporte_cola', view=False, cleanup=True)
+    return "Reporte de cola generado: reporte_cola.png"
 
 def generar_reporte_escritorios(punto):
-    """
-    Genera un diagrama de los escritorios de servicio en el punto de atención.
-    """
-    dot = Digraph(comment='Escritorios de Servicio')
+    dot = Digraph(comment='Escritorios de Servicio', format='png')
+    
     for escritorio in punto.escritorios:
-        estado = "Activo" if escritorio.activo else "Inactivo"
-        label = f"{escritorio.identificacion}\nEncargado: {escritorio.encargado}\nEstado: {estado}"
-        dot.node(escritorio.id, label)
-    dot.render('reporte_escritorios.gv', view=True)
-    return "Reporte de escritorios generado (reporte_escritorios.gv.pdf)"
+        tiempos = [t for t in escritorio.tiempos_atencion]
+        stats = (
+            sum(tiempos)/len(tiempos) if tiempos else 0,
+            max(tiempos) if tiempos else 0,
+            min(tiempos) if tiempos else 0
+        )
+        
+        label = (
+            f"{escritorio.identificacion}\\n"
+            f"Encargado: {escritorio.encargado}\\n"
+            f"Estado: {'Activo' if escritorio.activo else 'Inactivo'}\\n"
+            "---\\n"
+            f"Atendidos: {escritorio.clientes_atendidos}\\n"
+            f"T. Promedio: {stats[0]:.2f} min\\n"
+            f"T. Máximo: {stats[1]:.2f} min\\n"
+            f"T. Mínimo: {stats[2]:.2f} min"
+        )
+        
+        dot.node(
+            escritorio.id, 
+            label, 
+            shape='box', 
+            color='green' if escritorio.activo else 'red'
+        )
+    
+    dot.render('reporte_escritorios', view=False, cleanup=True)
+    return "Reporte de escritorios generado: reporte_escritorios.png"
