@@ -1,3 +1,4 @@
+# tda.py
 class Node:
     def __init__(self, data):
         self.data = data
@@ -85,3 +86,21 @@ class Queue:
 
     def size(self):
         return self._size
+
+class QueueConPrioridad(Queue):
+    """ Cola que inserta al frente los clientes con prioridad=True """
+    def __init__(self):
+        super().__init__()
+
+    def enqueue(self, cliente):
+        new_node = Node(cliente)
+        if cliente.prioridad:
+            # inserta al frente
+            if self.front is None:
+                self.front = self.rear = new_node
+            else:
+                new_node.next = self.front
+                self.front = new_node
+            self._size += 1
+        else:
+            super().enqueue(cliente)

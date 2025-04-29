@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<listadoInicial>
+   <configInicial id="SIMULACION3" idEmpresa="CLR" idPunto="AMTLN">
+     <escritoriosActivos>
+         <escritorio idEscritorio="I700"/>
+     </escritoriosActivos>
+     <listadoClientes>
+         <cliente dpi="2933151162222">
+            <nombre> Daniel </nombre>
+            <listadoTransacciones>
+               <transaccion idTransaccion="COCA" cantidad="2"/>
+            </listadoTransacciones>			
+         </cliente>
+         <cliente dpi="29331511623333">
+            <nombre> Carlos </nombre>
+            <listadoTransacciones>
+               <transaccion idTransaccion="CASE" cantidad="3"/>
+            </listadoTransacciones>			
+         </cliente>
+     </listadoClientes>
+   </configInicial>
+</listadoInicial>

@@ -55,7 +55,7 @@ def parse_configuracion_inicial(xml_file, empresas):
     Parsea el archivo XML de configuración inicial de la prueba.
     Se asume que 'empresas' es la lista de empresas ya cargada.
     Se busca la empresa y punto de atención para asignar clientes y activar escritorios.
-    Retorna la configuración (por ejemplo, se pueden retornar los objetos modificados).
+    Retorna la lista actualizada de empresas.
     """
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -64,7 +64,6 @@ def parse_configuracion_inicial(xml_file, empresas):
         id_empresa = config_elem.get('idEmpresa')
         id_punto = config_elem.get('idPunto')
 
-        # Buscar la empresa y el punto de atención correspondientes
         empresa_obj = next((e for e in empresas if e.id == id_empresa), None)
         if empresa_obj is None:
             continue
@@ -77,26 +76,30 @@ def parse_configuracion_inicial(xml_file, empresas):
         if escritorios_activos is not None:
             for esp in escritorios_activos.findall('escritorio'):
                 id_escritorio = esp.get('idEscritorio')
-                # Buscar el escritorio en el punto de atención
                 for escritorio in punto_obj.escritorios:
                     if escritorio.id == id_escritorio:
                         escritorio.activar()
 
-        # Agregar clientes a la cola
+        # Agregar clientes a la cola, detectando prioridad
         listado_clientes = config_elem.find('listadoClientes')
         if listado_clientes is not None:
             for cliente_elem in listado_clientes.findall('cliente'):
                 dpi = cliente_elem.get('dpi')
                 nombre_cliente = cliente_elem.find('nombre').text
-                cliente = Cliente(dpi, nombre_cliente)
+                # << Detección de prioridad desde XML
+                prioridad_elem = cliente_elem.find('prioridad')
+                prioridad = prioridad_elem is not None and prioridad_elem.text.lower() == 'true'
+                cliente = Cliente(dpi, nombre_cliente, prioridad)
+
                 listado_trans = cliente_elem.find('listadoTransacciones')
                 if listado_trans is not None:
                     for trans_elem in listado_trans.findall('transaccion'):
                         id_trans = trans_elem.get('idTransaccion')
                         cantidad = trans_elem.get('cantidad')
-                        # Buscar la transacción en la empresa
                         trans_obj = next((t for t in empresa_obj.transacciones if t.id == id_trans), None)
                         if trans_obj is not None:
                             cliente.agregar_transaccion(trans_obj, cantidad)
+
                 punto_obj.encolar_cliente(cliente)
+
     return empresas

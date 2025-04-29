@@ -1,0 +1,41 @@
+<listadoInicial>
+<configInicial id="SIMULACION1" idEmpresa="BNR" idPunto="VN">
+<escritoriosActivos>
+<escritorio idEscritorio="B10"/>
+</escritoriosActivos>
+<listadoClientes>
+<cliente dpi="2933151161111">
+<nombre> Arturito </nombre>
+<listadoTransacciones>
+<transaccion idTransaccion="DEEF" cantidad="2"/>
+</listadoTransacciones>
+</cliente>
+<cliente dpi="2933151162222">
+<nombre> Bill Gates </nombre>
+<listadoTransacciones>
+<transaccion idTransaccion="DEEF" cantidad="1"/>
+</listadoTransacciones>
+</cliente>
+<cliente dpi="2933151163333">
+<nombre> Dante </nombre>
+<listadoTransacciones>
+<transaccion idTransaccion="DEEF" cantidad="1"/>
+</listadoTransacciones>
+</cliente>
+<cliente dpi="2933151164444" prioridad="si">
+<nombre> Freddie Mercuri </nombre>
+<listadoTransacciones>
+<transaccion idTransaccion="APCU" cantidad="1"/>
+<transaccion idTransaccion="DEEF" cantidad="1"/>
+<transaccion idTransaccion="COSE" cantidad="1"/>
+</listadoTransacciones>
+</cliente>
+<cliente dpi="29331511655555">
+<nombre> Henry Ford </nombre>
+<listadoTransacciones>
+<transaccion idTransaccion="COCH" cantidad="2"/>
+</listadoTransacciones>
+</cliente>
+</listadoClientes>
+</configInicial>
+</listadoInicial>

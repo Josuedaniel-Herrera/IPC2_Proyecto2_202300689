@@ -1,5 +1,5 @@
 # models.py
-from tda import LinkedList, Queue
+from tda import LinkedList, QueueConPrioridad
 import time
 
 class Transaccion:
@@ -13,9 +13,9 @@ class Escritorio:
         self.id = id_escritorio
         self.identificacion = identificacion
         self.encargado = encargado
-        self.activo = False  # estado: activo/inactivo
+        self.activo = False            # estado: activo/inactivo
         self.cliente_actual = None
-        self.tiempo_restante = 0  # tiempo pendiente de atención
+        self.tiempo_restante = 0       # tiempo pendiente de atención
         # Nuevos atributos para métricas
         self.tiempos_atencion = LinkedList()  # Historial de tiempos de atención
         self.clientes_atendidos = 0          # Contador de clientes atendidos
@@ -31,10 +31,10 @@ class PuntoAtencion:
         self.id = id_punto
         self.nombre = nombre
         self.direccion = direccion
-        self.escritorios = LinkedList()   # Lista de Escritorios (TDA propia)
-        self.cola_clientes = Queue()      # Cola de clientes esperando atención
+        self.escritorios = LinkedList()        # Lista de Escritorios (TDA propia)
+        self.cola_clientes = QueueConPrioridad()  # << Usamos la cola con prioridad
         # Nuevo atributo para métricas de espera
-        self.tiempos_espera = LinkedList()  # Tiempos de espera de clientes
+        self.tiempos_espera = LinkedList()     # Tiempos de espera de clientes
 
     def agregar_escritorio(self, escritorio):
         self.escritorios.append(escritorio)
@@ -50,14 +50,9 @@ class PuntoAtencion:
             'tiempos_espera': [],
             'tiempos_atencion': []
         }
-        
-        # Convertir LinkedList a lista para cálculos
         metricas['tiempos_espera'] = [t for t in self.tiempos_espera]
-        
-        # Recopilar tiempos de atención de todos los escritorios
         for escritorio in self.escritorios:
             metricas['tiempos_atencion'].extend([t for t in escritorio.tiempos_atencion])
-            
         return metricas
 
 class Empresa:
@@ -65,8 +60,8 @@ class Empresa:
         self.id = id_empresa
         self.nombre = nombre
         self.abreviatura = abreviatura
-        self.puntos_atencion = LinkedList()      # Lista de Puntos de Atención
-        self.transacciones = LinkedList()        # Lista de Transacciones
+        self.puntos_atencion = LinkedList()   # Lista de Puntos de Atención
+        self.transacciones = LinkedList()     # Lista de Transacciones
 
     def agregar_punto_atencion(self, punto):
         self.puntos_atencion.append(punto)
@@ -75,9 +70,10 @@ class Empresa:
         self.transacciones.append(transaccion)
 
 class Cliente:
-    def __init__(self, dpi, nombre):
+    def __init__(self, dpi, nombre, prioridad=False):  # << ahora recibe prioridad
         self.dpi = dpi
         self.nombre = nombre
+        self.prioridad = prioridad                  # << atributo de prioridad
         # Cada elemento de "listado_transacciones" es una tupla (Transaccion, cantidad)
         self.listado_transacciones = LinkedList()
         self.numero_atencion = None  # número asignado al solicitar atención
